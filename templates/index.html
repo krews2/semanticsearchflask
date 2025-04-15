@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Engine</title>
+</head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/styles.css') }}">
+
+<body>
+    <h1>Semantic Search Steam Games</h1>
+    <form method="POST">
+        <input type="text" name="query" placeholder="Enter your search query">
+        <button type="submit">Search</button>
+    </form>
+    {% if query %}
+    <h2>Results for "{{ query }}"</h2>
+
+
+
+    <table class="gamesinfo" id="myTable">
+
+
+
+        <thead>
+            <tr class="headerrow">
+                <th onclick="sortTable(0,'alphabet')">Game Name </th>
+                <th onclick="sortTable(1)">Game Description</th>
+                <th onclick="sortTable(2,'currency')">Game Price</th>
+                <th onclick="sortTable(3,'number')">Recommendations</th>
+                <th onclick="sortTable(4,'alphabet')">Genres</th>
+                <th onclick="sortTable(5,'alphabet')">Tags</th>
+            </tr>
+        </thead>
+
+        
+
+
+
+
+
+    </table>
+
+
+
+    <script>
+
+        let pythonList = JSON.parse('{{ results | tojson }}');
+
+
+
+        buildTable(pythonList)
+
+        function buildTable(pythonList) {
+            let table = document.getElementById("myTable")
+
+            for (let i = 0; i < pythonList.length; i++) {
+                let row = `<tbody> <tr>
+                                        <td>${pythonList[i].GameName}</td>
+                                        <td>${pythonList[i].GameInfo}</td>
+                                        <td>$${pythonList[i].GamePrice}</td>
+                                        <td>${pythonList[i].Recommendations}</td>
+                                        <td>${pythonList[i].Genres}</td>
+                                        <td>${pythonList[i].Tags}</td>
+                        
+                                  </tr></tbody>`
+                table.innerHTML += row
+                
+
+            }
+            
+        }
+
+        function sortTable(n, mode) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("myTable");
+            switching = true;
+
+            dir = "asc";
+
+            while (switching) {
+
+                switching = false;
+                rows = table.getElementsByTagName("TR");
+
+                for (i = 1; i < (rows.length - 1); i++) {
+
+                    shouldSwitch = false;
+
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                    if (dir == "asc") {
+                        if (compareValues(x.innerHTML, y.innerHTML, mode) == 1) {
+
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (compareValues(x.innerHTML, y.innerHTML, mode) == -1) {
+
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+
+                    switchcount++;
+                } else {
+
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        function compareValues(x, y, mode) {
+            x = parseValue(x, mode)
+            y = parseValue(y, mode)
+            if (x < y)
+                return -1
+            if (x > y)
+                return 1
+            return 0
+        }
+
+        function parseValue(val, mode) {
+            switch (mode) {
+                case 'alphabet':
+                    return val.toLowerCase()
+                    break
+                case 'currency':
+                    return parseFloat(val.slice(1).replace(',', ''))
+                    break
+                case 'number':
+                    return parseInt(val)
+                    return
+            }
+        }
+
+
+    </script>
+
+    {% else %}
+    <p>Please enter a search query to see results.</p>
+    {% endif %}
+</body>
+
+</html>
