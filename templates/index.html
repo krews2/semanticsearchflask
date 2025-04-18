@@ -10,7 +10,7 @@
 <body>
     <h1>Semantic Search Steam Games</h1>
     <form method="POST">
-        <input type="text" name="query" id="search", placeholder="Enter your search query">
+        <input type="text" name="query" id="search" , placeholder="Enter your search query">
         <button type="submit">Search</button>
     </form>
     {% if query %}
@@ -57,8 +57,8 @@
 
     <script>
 
-        let query="{{query}}"
-        
+        let query = "{{query}}"
+
 
         let pythonList = JSON.parse('{{ results | tojson }}');
 
@@ -75,8 +75,10 @@
             let table = document.getElementById("myTable")
 
             for (let i = 0; i < pythonList.length; i++) {
+                GameImage = pythonList[i].ImageUrl
                 let row = `<tbody> <tr>
-                                        <td><a href="/gamesinfo">${pythonList[i].GameName}</a></td>
+                                        
+                                        <td><img src=${GameImage}><strong><figcaption>${pythonList[i].GameName}</figcaption></strong></img></td>
 
                                         <td class="gamei">${pythonList[i].GameInfo}</td>
                                         <td>${pythonList[i].RelevancyScore}</td>
@@ -87,33 +89,55 @@
                         
                                   </tr></tbody>`
 
-                
 
-            
-                
+
+
+
                 table.innerHTML += row
-                
 
-          
-                
+
+
+
 
 
             }
 
-            for (let i=0; i<pythonList.length; i++){
-                let sepquery= query.split(" ").map(v => `(${v})`).join("|");                  
-                let re = new RegExp(sepquery,"gi");
-                let letmyca = document.getElementsByClassName("gamei")
-               
-                letmyca[i].innerHTML=letmyca[i].innerHTML.replace(re,`<mark>$&</mark>`);
+            highlightSearch()
 
-                
-                
+
+
+
+
+
+        }
+
+        function highlightSearch() {
+
+            stopwords = ['i','me','my','myself','we','our','ours','ourselves','you','your','yours','yourself','yourselves','he','him','his','himself','she','her','hers','herself','it','its','itself','they','them','their','theirs','themselves','what','which','who','whom','this','that','these','those','am','is','are','was','were','be','been','being','have','has','had','having','do','does','did','doing','a','an','the','and','but','if','or','because','as','until','while','of','at','by','for','with','about','against','between','into','through','during','before','after','above','below','to','from','up','down','in','out','on','off','over','under','again','further','then','once','here','there','when','where','why','how','all','any','both','each','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','s','t','can','will','just','don','should','now']
+
+            function remove_stopwords(str) {
+                res = []
+                words = str.split(' ')
+                for (i = 0; i < words.length; i++) {
+                    word_clean = words[i].split(".").join("")
+                    if (!stopwords.includes(word_clean)) {
+                        res.push(word_clean)
+                    }
+                }
+                return (res.join(' '))
             }
 
+            for (let i = 0; i < pythonList.length; i++) {
+                removeStopWordsQuery=remove_stopwords(query)
+                let sepquery = removeStopWordsQuery.split(" ").map(v => `(${"\\b"+ v +"\\b"})`).join("|");
+                let re = new RegExp(sepquery, "gi");
+                let descrCol = document.getElementsByClassName("gamei")
+
+                descrCol[i].innerHTML = descrCol[i].innerHTML.replace(re, `<mark>$&</mark>`);
 
 
 
+            }
 
         }
 
