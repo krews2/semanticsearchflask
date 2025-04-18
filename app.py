@@ -26,6 +26,7 @@ gameprice=list(df['Price'])
 recommendations=list(df['Recommendations'])
 tags=list(df['Tags'])
 genres=list(df['Genres'])
+website=list(df['Website'])
 
 
 corpus_embeddings = torch.load('file.pt')
@@ -73,8 +74,9 @@ def mysearch(query):
       gr=recommendations[idx]
       gg=genres[idx]
       gt=tags[idx]
+      iu=website[idx]
       relscoreformatted=f"{score:.4f}"
-      results.append({"GameName":gn,"GameInfo":gs,"RelevancyScore":relscoreformatted,"GamePrice":gp,"Recommendations":gr,"Genres":gg,"Tags":gt})
+      results.append({"GameName":gn,"GameInfo":gs,"RelevancyScore":relscoreformatted,"GamePrice":gp,"Recommendations":gr,"Genres":gg,"Tags":gt,"ImageUrl":iu})
 
 
    
