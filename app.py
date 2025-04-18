@@ -5,18 +5,19 @@ from sentence_transformers import SentenceTransformer
 
 
 
+
 app = Flask(__name__)
 
 mylist=[]
 
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
+# Corpus with example sentences
 
 
+#corpus_embeddings = embedder.encode(string_list, convert_to_tensor=True)
 
-
-# file size is too large for github
-df=pd.read_html("https://www.kaggle.com/datasets/fronkongames/steam-games-dataset")
+df=pd.read_csv("/home/krupesh/Downloads/gamesreviews/games.csv")
 
 
 corpus=list(df['Supported languages'])
@@ -26,8 +27,8 @@ recommendations=list(df['Recommendations'])
 tags=list(df['Tags'])
 genres=list(df['Genres'])
 
-#Saved model using embeddings from the Supported language column. The model size is too large for github
-corpus_embeddings = torch.load('corpusembedding.pt')
+
+corpus_embeddings = torch.load('file.pt')
 
 
 
@@ -47,12 +48,13 @@ def index():
     return render_template("index.html", results=[],query="")
 
 
+
 def mysearch(query):
 
    results=[]
    
 
-   top_k = min(20, len(corpus))
+   top_k = min(30, len(corpus))
 
    query_embedding = embedder.encode(query, convert_to_tensor=True)
 
@@ -64,14 +66,15 @@ def mysearch(query):
    print("Top 10 most similar sentences in corpus:")
 
    for score, idx in zip(scores, indices):
-      print(idx)
+      
       gn=gamename[idx]
       gs=corpus[idx]
       gp=gameprice[idx]
       gr=recommendations[idx]
       gg=genres[idx]
       gt=tags[idx]
-      results.append({"GameName":gn,"GameInfo":gs,"GamePrice":gp,"Recommendations":gr,"Genres":gg,"Tags":gt})
+      relscoreformatted=f"{score:.4f}"
+      results.append({"GameName":gn,"GameInfo":gs,"RelevancyScore":relscoreformatted,"GamePrice":gp,"Recommendations":gr,"Genres":gg,"Tags":gt})
 
 
    
